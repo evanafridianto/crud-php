@@ -2,52 +2,98 @@
 $title = "Data Mahasiswa";
 $judul = $title;
 $url = 'mahasiswa';
-
+;
 
 if (isset($_POST['simpan'])) {
-    if ($_POST['id'] == "") {
-        $data['nama'] = $_POST['nama'];
-        $data['nim'] = $_POST['nim'];
-        $data['alamat'] = $_POST['alamat'];
-        $db->insert('tb_mahasiswa', $data);
+    // cek validasi
+    $validation=null;
+    // cek nim apakah sudah ada
+    if($_POST['id']!=""){
+        $db->where('id !='.$_POST['id']);
+    }
+    $db->where('nim',$_POST['nim']);
+    $db->get('tb_mahasiswa');
+    if($db->count>0){
+        $validation[]='NIM Sudah Ada';
+    }
 
-?>
-        <script>
-            window.alert('Data Berhasil Disimpan !');
-            window.location.href = "<?= url('mahasiswa') ?>";
-        </script>
-    <?php
-    } else {
+    //tidak boleh kosong
+    if ($_POST['nama']=='');
+    if($_POST['nim']=='');
+    if($_POST['alamat']==''){
+        $validation[]='Tidak Boleh Kosong';
+    }
+
+
+    if(!empty($validation)){
+        $setTemplate=false;
+        $session->set('error_validation',$validation);
+        $session->set('error_value',$_POST);
+        redirect($_SERVER['HTTP_REFERER']);
+        return false;
+    }
+    //cek validasi
+
+
+    if ($_POST['id'] == "") {
+
+
+        $data['nama'] = $_POST['nama'];
+        $data['nim'] =$_POST['nim'];
+        $data['alamat'] = $_POST['alamat'];
+        $exec=$db->insert('tb_mahasiswa', $data);
+        $info= '<div class="alert alert-success alert-dismissible fade show" role="alert">
+        <strong>SUKSES!</strong> Data Sukses ditambah.
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">X</button>
+        </div>';
+
+    }
+    else {
         $data['nama'] = $_POST['nama'];
         $data['nim'] = $_POST['nim'];
         $data['alamat'] = $_POST['alamat'];
         $db->where('id', $_POST['id']);
-        $db->update("tb_mahasiswa", $data);
-    ?>
-        <script>
-            window.alert('Data Berhasil Diubah !');
-            window.location.href = "<?= url('mahasiswa') ?>";
-        </script>
-    <?php
-
+        $exec=$db->update("tb_mahasiswa", $data);
+        $info= '<div class="alert alert-success alert-dismissible fade show" role="alert">
+        <strong>SUKSES!</strong> Data Sukses diubah.
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">X</button>
+        </div>';
     }
+
+    if($exec){
+        $session->set('info',$info);
+    }
+    else{
+      $session->set("info",'<div class="alert alert-danger alert-dismissible">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+        <h4><i class="icon fa fa-ban"></i> Error!</h4> Proses gagal dilakukan
+        </div>');
+  }
+  redirect(url($url));
 }
 
 if (isset($_GET['hapus'])) {
     $db->where('id', $_GET['id']);
-    $db->delete('tb_mahasiswa');
+    $exec=$db->delete('tb_mahasiswa');
+    $info= '<div class="alert alert-success alert-dismissible fade show" role="alert">
+    <strong>SUKSES!</strong> Data Sukses dihapus.
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">X</button>
+    </div>';
 
-    ?>
-    <script>
-        window.alert('Data Berhasil Dihapus !');
-        window.location.href = "<?= url('mahasiswa') ?>";
-    </script>
-<?php
-
-
+    if($exec){
+        $session->set('info',$info);
+    }
+    else{
+        $session->set("info",'<div class="alert alert-danger alert-dismissible fade show" role="alert">
+          <strong>GAGAL!</strong>Proses Gagal dilakukan.
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">X</button>
+          </div>');
+    }
+    redirect(url($url));
 }
 
-if (isset($_GET['tambah']) or isset($_GET['ubah'])) {
+
+elseif (isset($_GET['tambah']) or isset($_GET['ubah'])) {
 
     $id = "";
     $nama = "";
@@ -65,7 +111,10 @@ if (isset($_GET['tambah']) or isset($_GET['ubah'])) {
             $alamat = $row->alamat;
         }
     }
-?>
+    if($session->get('error_value')){
+        extract($session->pull('error_value'));
+    }
+    ?>
 
 
     <?= content_open('Form') ?>
@@ -73,6 +122,14 @@ if (isset($_GET['tambah']) or isset($_GET['ubah'])) {
 
         <div class="card-body card mb-4">
             <form role="form" method="POST" enctype="multipart/form-data">
+                <?php
+            // menampilkan error validasi
+                if($session->get('error_validation')){
+                    foreach ($session->pull('error_validation') as $key => $value) {
+                        echo '<p style="color:red">'.$value.'</p>';
+                    }
+                }
+                ?>
                 <?= input_hidden('id', $id) ?>
                 <label>Nama</label>
                 <div class=" mb-2">
@@ -80,7 +137,7 @@ if (isset($_GET['tambah']) or isset($_GET['ubah'])) {
                 </div>
                 <label>NIM</label>
                 <div class="mb-2">
-                    <?= input_text('nim', $nim) ?>
+                    <?= input_number('nim', $nim) ?>
                 </div>
                 <label>Alamat</label>
                 <div class="mb-2">
@@ -101,8 +158,10 @@ if (isset($_GET['tambah']) or isset($_GET['ubah'])) {
     <div class="row">
         <div class="box-header with-border">
             <a class="btn bg-gradient-dark mb-0" href="<?= url($url . '&tambah') ?>"> <i class="fas fa-plus"></i>&nbsp;&nbsp;Add New</a>
+            <br><br>
+            <?=$session->pull("info")?>
         </div>
-        <br><br>
+
         <div class="col-12">
             <div class="card mb-4">
                 <div class="card-body px-0 pt-0 pb-2">
@@ -122,49 +181,49 @@ if (isset($_GET['tambah']) or isset($_GET['ubah'])) {
                                 $no = 1;
                                 $getdata = $db->ObjectBuilder()->get('tb_mahasiswa');
                                 foreach ($getdata as $key) {
-                                ?>
+                                    ?>
                                     <tr>
                                         <td>
                                             <div class="d-flex px-2 py-1">
                                                 <div class="d-flex flex-column justify-content-center">
                                                     <p class="text-xs font-weight-bold mb-0"><?= $no++ ?></h6>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="d-flex px-2 py-1">
-                                                <div class="d-flex flex-column justify-content-center">
-                                                    <p class="text-xs font-weight-bold mb-0"><?= $key->nama ?></h6>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="d-flex px-2 py-1">
-                                                <div class="d-flex flex-column justify-content-center">
-                                                    <p class="text-xs font-weight-bold mb-0"><?= $key->nim ?></p>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="d-flex px-2 py-1">
-                                                <div class="d-flex flex-column justify-content-center">
-                                                    <p class="text-xs font-weight-bold mb-0"><?= $key->alamat ?></p>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <a class="btn btn-link text-dark px-3 mb-0" href="<?= url($url . '&ubah&id=' . $key->id) ?>"><i class="fas fa-pencil-alt text-dark me-2" aria-hidden="true"></i>Edit</a>
-                                            <a class="btn btn-link text-danger text-gradient px-3 mb-0" onclick="return confirm('Hapus data?')" href="<?= url($url . '&hapus&id=' . $key->id) ?>"><i class="far fa-trash-alt me-2"></i>Delete</a>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex px-2 py-1">
+                                                    <div class="d-flex flex-column justify-content-center">
+                                                        <p class="text-xs font-weight-bold mb-0"><?= $key->nama ?></h6>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex px-2 py-1">
+                                                        <div class="d-flex flex-column justify-content-center">
+                                                            <p class="text-xs font-weight-bold mb-0"><?= $key->nim ?></p>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex px-2 py-1">
+                                                        <div class="d-flex flex-column justify-content-center">
+                                                            <p class="text-xs font-weight-bold mb-0"><?= $key->alamat ?></p>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <a class="btn btn-link text-dark px-3 mb-0" href="<?= url($url . '&ubah&id=' . $key->id) ?>"><i class="fas fa-pencil-alt text-dark me-2" aria-hidden="true"></i>Edit</a>
+                                                    <a class="btn btn-link text-danger text-gradient px-3 mb-0" onclick="return confirm('Hapus data?')" href="<?= url($url . '&hapus&id=' . $key->id) ?>"><i class="far fa-trash-alt me-2"></i>Delete</a>
 
-                                        </td>
-                                    </tr>
-                                <?php } ?>
-                            </tbody>
-                        </table>
+                                                </td>
+                                            </tr>
+                                        <?php } ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-    <?= content_close() ?>
-<?php } ?>
+            <?= content_close() ?>
+            <?php } ?>
