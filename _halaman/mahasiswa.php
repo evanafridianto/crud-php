@@ -17,14 +17,13 @@ if (isset($_POST['simpan'])) {
         $validation[]='NIM Sudah Ada';
     }
 
-
     //tidak boleh string
     $nimm = $_POST['nim'];
     if (!preg_match("/^[1-9][0-9]{0,15}$/",$nimm)) {
         $validation[]='Input NIM berupa angka!';
     }
     
-    //tidak boleh kosong
+    //input tidak boleh kosong
   
     if($_POST['nim']==''){
         $validation[]='NIM Tidak Boleh Kosong!';
