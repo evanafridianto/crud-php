@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.1.0
+-- version 5.1.1
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 07, 2021 at 08:04 PM
--- Server version: 10.4.18-MariaDB
--- PHP Version: 8.0.3
+-- Generation Time: Oct 27, 2021 at 10:21 AM
+-- Server version: 10.4.21-MariaDB
+-- PHP Version: 8.0.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -39,8 +39,10 @@ CREATE TABLE `tb_mahasiswa` (
 --
 
 INSERT INTO `tb_mahasiswa` (`id`, `nama`, `nim`, `alamat`) VALUES
-(3, 'Evan Afdrianto', '234234', 'Malang'),
-(4, 'Riski', '123312213', 'Kediri');
+(113, 'Evan Afdrianto', '43122432', 'Jl. Mega Mendung'),
+(114, 'Riki', '23543253', 'Jl. Tlogomas'),
+(115, 'Tasya', '09843824', 'Jl.Batumas'),
+(116, 'Linda', '5654', 'Jl. Batubara');
 
 --
 -- Indexes for dumped tables
@@ -60,7 +62,7 @@ ALTER TABLE `tb_mahasiswa`
 -- AUTO_INCREMENT for table `tb_mahasiswa`
 --
 ALTER TABLE `tb_mahasiswa`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=117;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
