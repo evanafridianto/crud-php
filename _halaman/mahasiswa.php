@@ -18,15 +18,6 @@ if (isset($_POST['simpan'])) {
     }
 
 
-
-
-
-
-//  {
-//     $validation[]='Masukan NIM berupa angka!';
-// }
-
-
     //tidak boleh string
     $nimm = $_POST['nim'];
     if (!preg_match("/^[1-9][0-9]{0,15}$/",$nimm)) {
@@ -46,16 +37,7 @@ if (isset($_POST['simpan'])) {
         $validation[]='Alamat Tidak Boleh Kosong!';
     }
 
-
-    // if(preg_match('/[^A-Za-z]/', $_POST['nim']));
-    // {
-    //     $validation[]='Masukan NIM berupa angka.';
-    // } 
-    
-    
-   
-
-
+    //cek validasi
     if(!empty($validation)){
         $setTemplate=false;
         $session->set('error_validation',$validation);
@@ -63,7 +45,6 @@ if (isset($_POST['simpan'])) {
         redirect($_SERVER['HTTP_REFERER']);
         return false;
     }
-    //cek validasi
 
 
     if ($_POST['id'] == "") {
