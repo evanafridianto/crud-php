@@ -7,7 +7,7 @@ $setDb['db_user'] = 'root';
 $setDb['db_password'] = '';
 
 // folder templates
-$template = 'templates/soft-ui-dashboard/';
+$template = 'templates/soft-uidashboard/';
 
 //session
 $setSession['prefix'] = 'crud-php';
